@@ -1,5 +1,7 @@
 # dsh-bilingual-description
 
+**English** · [简体中文](README.zh.md)
+
 Every tool call that takes a `description` argument writes it **bilingual — Chinese first, English second** — and a call that forgets the Chinese half is rejected before it runs, with the exact rewrite handed back to the model.
 
 ![Before / after](screenshots/01-before-after.png)

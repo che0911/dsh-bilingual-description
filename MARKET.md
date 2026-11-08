@@ -1,20 +1,25 @@
-# 上传文案 · dsh-bilingual-description
+# 上传文案 · Market copy
 
-> 复制下面各段到插件市场对应字段即可。
+> 市场字段中英各一份，下面每个字段都给了双语，直接对位复制。
+> Every market field takes both languages — each field below is given in both.
 
-## 名称
+## 名称 / Name
 
 `dsh-bilingual-description`
 
-## 一句话介绍（≤ 40 字）
+## 一句话介绍 / One-line intro
 
-工具调用描述强制中英双语，漏写直接拦下重写。
+- 中文：工具调用描述强制中英双语，漏写直接拦下重写。
+- EN: Tool-call descriptions are forced bilingual, and English-only calls are rejected before they run.
 
-## 卡片副标题（≤ 80 字）
+## 卡片副标题 / Card subtitle
 
-让每个带 description 的工具调用都写成「中文:“…” 英文:“…”」；提示词先讲规则，调用前守卫再校验，漏写即拒绝并原样告知改法。
+- 中文：让每个带 description 的工具调用都写成「中文:“…” 英文:“…”」；提示词先讲规则，调用前守卫再校验，漏写即拒绝并原样告知改法。
+- EN: Every tool call that takes a description is written as 中文:“…” 英文:“…” — the prompt states the rule, a tool guard verifies it before execution, and a missing half is rejected with the exact rewrite.
 
-## 详细介绍
+## 详细介绍 / Long description
+
+### 中文
 
 工具调用的 `description` 会原样进入轨迹的「参数」面板，是你事后回看「这一步到底做了什么」的唯一线索。可它由模型随手写成一句英文，一旦写进会话就是不可变快照——事后没有任何插件能把它翻译回中文。
 
@@ -40,24 +45,50 @@
 - 读不到工具定义时退回一份命令类工具名单，不扩大打击面；
 - 插件内部任何异常都按「放行」处理，绝不会因为自己的原因卡住正常调用。
 
-## 功能亮点
+### English
 
-- 中文在前、英文在后，单行、带标签、无需转义
-- 双层生效：提示词预防 + 守卫拦截
-- 只作用于真的带 `description` 参数的工具，`read` / `write` 等完全无感
-- 拦截时返回准确的改法，模型一次重写即可通过
-- 三个环境变量可调：整体关闭、只校验命令类工具、追加额外工具
-- 自带 16 条断言的冒烟测试，无需 DSH 运行时即可验证
-- 零依赖，MIT 许可
+A tool call's `description` is what lands, verbatim, in the trajectory **parameters** panel — the only trace of what a step actually did. The model writes it as one English sentence, and once it is in the session record it is an immutable snapshot: no plugin can translate it afterwards.
 
-## 截图
+Only two places can influence it: the **prompt** (state the rule) and the **guard** (refuse the call). This plugin does both:
 
-| 文件 | 说明 |
+1. **Prompt section** — appends one short rule to every request, next to the built-in shell guidance, so the model knows the format before it writes.
+2. **Tool guard** — inspects `description` before execution, rejects a call that fails the check, and hands the exact rewrite back to the model.
+
+Required format, single line, full-width quotes:
+
+```
+中文:“<中文描述>” 英文:“<English description>”
+```
+
+Full-width quotes mean no JSON escaping is needed, so the model cannot mangle the value while escaping.
+
+**Why a guard and not just a prompt**: a prompt is advice, and in a long session the model drifts back to the style of its previous hundred English-only calls. The guard is a hard constraint — a bad call simply does not run, the cost of rewriting is immediate, and the next attempt follows the rule.
+
+**What it does not do**:
+
+- Touches no other plugin's files; it uses only the public extension points `ctx.systemPrompt.section()` and `ctx.tools.guard()`.
+- Hard-codes no tool names: it reads the tool definition at call time and validates only tools that actually declare a top-level `description` parameter.
+- Falls back to a known shell-tool list when a definition cannot be read, instead of widening the blast radius.
+- Treats any internal error as "allow", so the plugin can never block a normal call.
+
+## 功能亮点 / Highlights
+
+- 中文在前、英文在后，单行、带标签、无需转义 / Chinese first, English second — one line, labelled, no escaping
+- 双层生效：提示词预防 + 守卫拦截 / Two layers: prompt prevents, guard blocks
+- 只作用于真的带 `description` 参数的工具，`read` / `write` 等完全无感 / Only tools that really declare `description`; `read`, `write` and friends are untouched
+- 拦截时返回准确的改法，模型一次重写即可通过 / The rejection carries the exact rewrite, so one retry passes
+- 三个环境变量可调：整体关闭、只校验命令类工具、追加额外工具 / Three env switches: disable, shell-tools-only, extra tools
+- 自带 16 条断言的冒烟测试，无需 DSH 运行时即可验证 / Ships a 16-assertion smoke test that runs without a DSH runtime
+- 零依赖，MIT 许可 / Zero dependencies, MIT
+
+## 截图 / Screenshots
+
+| 文件 / File | 说明 / Description |
 | --- | --- |
-| `screenshots/01-before-after.png` | 上：改前只有英文；下：改后中文 + 英文（真实轨迹「参数」面板） |
-| `screenshots/02-guard-rejection.png` | 漏写中文时的真实返回：拒绝 + 给出重写文案 |
+| `screenshots/01-before-after.png` | 上：改前只有英文；下：改后中文 + 英文（真实轨迹「参数」面板）/ Top: English only before; bottom: Chinese + English after (a real trajectory parameters panel) |
+| `screenshots/02-guard-rejection.png` | 漏写中文时的真实返回：拒绝 + 给出重写文案 / A real rejection: the call is refused and the rewrite is returned |
 
-## 安装
+## 安装 / Install
 
 插件市场直接安装，或手动：
 
@@ -66,21 +97,24 @@ cd ~/.dsh/profiles/<profile>
 npm install /path/to/dsh-plugin-bilingual-description
 ```
 
-再把 `"dsh-bilingual-description"` 加进该 profile `package.json` 的 `dsh.profile.bundles`，重启 DSH。
+- 中文：再把 `"dsh-bilingual-description"` 加进该 profile `package.json` 的 `dsh.profile.bundles`，重启 DSH。
+- EN: Then add `"dsh-bilingual-description"` to `dsh.profile.bundles` in that profile's `package.json` and restart DSH.
 
-## 兼容性
+或从 GitHub 安装 / or from GitHub:
 
-- DeepSeek Harness `>= 0.2.0-rc.1`（在 `0.2.2-rc.1` 上实测）
-- 不依赖任何其它插件
+```bash
+dsh plugin --profile desktop add github:che0911/dsh-bilingual-description
+```
 
-## 关键词 / 标签
+## 兼容性 / Compatibility
 
-`深寻工具` `中文` `双语` `bilingual` `description` `轨迹` `trajectory` `工具守卫` `guard` `提示词` `prompt` `可观测性` `审计`
+- DeepSeek Harness `>= 0.2.0-rc.1`（在 `0.2.2-rc.1` 上实测 / tested on `0.2.2-rc.1`）
+- 不依赖任何其它插件 / No other plugin required
 
-## 版本
+## 关键词 / Keywords
 
-`0.1.0`
+`dsh-plugin` `bilingual` `双语` `description` `trajectory` `轨迹` `guard` `工具守卫` `prompt` `提示词` `i18n` `审计` `audit`
 
-## 作者
+## 版本 / Version · 作者 / Author
 
-cheche · MIT
+`0.1.0` · cheche · MIT

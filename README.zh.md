@@ -1,5 +1,7 @@
 # dsh-bilingual-description
 
+[English](README.md) · **简体中文**
+
 让每个带 `description` 参数的工具调用都写成**中文在前、英文在后**的双语描述；漏写中文的调用会在执行前被拦下，并把准确的改法原样丢回给模型重写。
 
 ![改前 / 改后](screenshots/01-before-after.png)
