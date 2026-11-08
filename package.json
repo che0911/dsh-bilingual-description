@@ -26,6 +26,7 @@
     "README.md",
     "README.zh.md",
     "LICENSE",
+    "assets/",
     "scripts/",
     "screenshots/"
   ],
