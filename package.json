@@ -1,0 +1,43 @@
+{
+  "name": "dsh-bilingual-description",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "让每个工具调用的 description 参数都中英双语：提示词声明规则，调用前守卫拦截漏写。Enforce bilingual (Chinese + English) tool-call descriptions in DeepSeek Harness.",
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "bilingual",
+    "description",
+    "i18n",
+    "trajectory",
+    "guard",
+    "tool-call"
+  ],
+  "license": "MIT",
+  "author": "cheche",
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "cordis.patch.yml",
+    "README.md",
+    "README.zh.md",
+    "LICENSE",
+    "scripts/",
+    "screenshots/"
+  ],
+  "engines": {
+    "dsh": ">=0.2.0-rc.1"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "scripts": {
+    "smoke": "node scripts/smoke.mjs"
+  }
+}
